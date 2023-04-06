@@ -94,7 +94,23 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+.MuiDrawer-paper--animate {
+  opacity: 0;
+}
 
+.content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6rem;
+  min-height: 100vh;
+}
+.fixed{
+  position: fixed;
+  top:0;
+  height :100% ;
+}
 a {
   color: inherit;
   text-decoration: none;
