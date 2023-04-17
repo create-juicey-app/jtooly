@@ -1,35 +1,15 @@
 import * as React from 'react';
-
-
-
-import Box from '@mui/material/Box';
-
-import Toolbar from '@mui/material/Toolbar';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-
-
-import Chart from './Chart';
-import Deposits from './Deposits';
-import Orders from './Orders';
-import Copyright from '@/components/FrontModules/copyright';
 import { Typography } from '@mui/material';
-
-
-
-
-
+import { useTranslation } from 'next-i18next'
 
 function DashboardContent() {
-
+  const { t } = useTranslation('translation')
 
   return (
-
-    <Typography>Ok so uhh im supposed to be like uh down or somewhere</Typography>
-
+    <>
+      <Typography>Ok so uhh im supposed to be like uh down or somewhere</Typography>
+      <Typography>{t('h1')}</Typography>
+    </>
   );
 }
 
