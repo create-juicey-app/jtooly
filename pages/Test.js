@@ -45,34 +45,9 @@ export async function getServerSideProps() {
     }
   }
 }
-const [session] = useSession();
-const [isDeleting, setIsDeleting] = useState(false);
-
-const handleDeleteUser = async (id) => {
-  setIsDeleting(true);
-  try {
-    const response = await axios.post("/api/delete-user", {
-      userId: id,
-    });
-    console.log(response.data);
-    // Update the list of users after deletion
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setIsDeleting(false);
-  }
-};
-
-async function handleEditUser(userId) {
-  // get the updated user data from a form or other UI element
-  const updatedUserData = { name: "New Name", email: "newemail@example.com" };
-
+async function handleDeleteUser(userId) {
   const res = await fetch(`/api/users/${userId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedUserData),
+    method: "DELETE",
   });
   // handle the response as needed
 }
