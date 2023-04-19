@@ -13,7 +13,7 @@ import { mainListItems, secondaryListItems } from "./listItems";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import * as React from "react";
 import { Backpack, ChevronRightRounded } from "@mui/icons-material";
-import { Backdrop, Avatar, Button } from "@mui/material";
+import { Backdrop, Avatar, Button, Stack } from "@mui/material";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import { useSession, signIn, signOut } from "next-auth/react";
 export default function MainBar() {
@@ -56,17 +56,23 @@ export default function MainBar() {
     if (session) {
       return (
         <>
-          <div>
-            <IconButton color="inherit">
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            spacing={1}
+          >
+            <IconButton size="medium" color="inherit">
               <Badge badgeContent={0} color="secondary">
-                <NotificationsIcon />
+                <NotificationsIcon fontSize="24" />
               </Badge>
             </IconButton>
-          </div>
-          <IconButton>
-            <Avatar src={session.user.image}></Avatar>
-          </IconButton>
-          <Button onClick={() => signOut()}>Sign out</Button>
+
+            <IconButton>
+              <Avatar src={session.user.image}></Avatar>
+            </IconButton>
+            <Button onClick={() => signOut()}>Sign out</Button>
+          </Stack>
         </>
       );
     }
