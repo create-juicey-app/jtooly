@@ -7,7 +7,7 @@ import Divider from "@mui/material/Divider";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
 import GitHubIcon from "@mui/icons-material/GitHub";
 const useStyles = styled((theme) => ({
   root: {
