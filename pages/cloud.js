@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function UploadFormPage(props) {
+export default function PrivatePage(props) {
   const [image, setImage] = useState(null);
   const [createObjectURL, setCreateObjectURL] = useState(null);
 
@@ -13,11 +13,10 @@ export default function UploadFormPage(props) {
     }
   };
 
-  const uploadToServer = async (event) => {        
+  const uploadToServer = async (event) => {
     const body = new FormData();
-    // console.log("file", image)
-    body.append("file", image);    
-    const response = await fetch("/api/filemanager", {
+    body.append("file", image);
+    const response = await fetch("/api/file", {
       method: "POST",
       body
     });
