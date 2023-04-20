@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import { useState } from "react";
 import {
   Card,
   CardActions,
@@ -12,6 +13,9 @@ import {
 } from "@mui/material";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
+import LinearProgress from "@mui/material/LinearProgress";
+////////////////////////////////////////////////////////////////////////////////
+
 export async function getServerSideProps() {
   const uri = process.env.MONGODB_URI;
   let client;
@@ -45,14 +49,53 @@ export async function getServerSideProps() {
     }
   }
 }
-async function handleDeleteUser(userId) {
-  const res = await fetch(`/api/users/${userId}`, {
-    method: "DELETE",
-  });
-  // handle the response as needed
-}
 
 export default function Users({ users }) {
+  async function handleDeleteUser(userId) {
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(`/api/deleteuser?id=${userId}`, {
+        method: "DELETE",
+      });
+
+      // handle the response as needed
+    } catch (err) {
+      // handle errors
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  function simulateProgress() {
+    const totalProgress = 100;
+    const timeLimit = 5000; // in milliseconds
+    const interval = 100; // in milliseconds
+
+    setProgress(0);
+
+    const startTime = new Date().getTime();
+    const intervalId = setInterval(() => {
+      const elapsedTime = new Date().getTime() - startTime;
+      const elapsedProgress = (elapsedTime / timeLimit) * totalProgress;
+
+      if (elapsedProgress >= totalProgress) {
+        setProgress(totalProgress);
+        setTimeRemaining(0);
+        clearInterval(intervalId);
+      } else {
+        setProgress(elapsedProgress);
+        setTimeRemaining(Math.ceil((timeLimit - elapsedTime) / 1000));
+      }
+    }, interval);
+  }
+  function BeforeDelete(ID) {
+    simulateProgress();
+    handleDeleteUser(ID);
+  }
+
   return (
     <div>
       <h1>Users:</h1>
@@ -73,6 +116,15 @@ export default function Users({ users }) {
                 <Typography variant="body2" color="text.secondary">
                   {user.email}
                 </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {user._id}
+                </Typography>
+                {isDeleting && (
+                  <div>
+                    <LinearProgress variant="determinate" value={progress} />
+                    <p>Time remaining: {timeRemaining} seconds</p>
+                  </div>
+                )}
               </CardContent>
               <CardActions>
                 <Grid
