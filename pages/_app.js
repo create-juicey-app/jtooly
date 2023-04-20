@@ -9,7 +9,7 @@ import MainBar from "@/components/FrontModules/appbar";
 import "../styles/globals.css";
 import "./i18n";
 import { SessionProvider } from "next-auth/react";
-
+import { Analytics } from "@vercel/analytics/react";
 // Define your MUI theme
 const theme = createTheme({
   palette: {
@@ -107,6 +107,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider theme={theme}>
+      <Analytics />
       <SessionProvider>
         <CssBaseline />
         <MainBar />
