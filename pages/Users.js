@@ -1,6 +1,8 @@
 import { MongoClient } from "mongodb";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+
 import {
   Fab,
   Box,
@@ -12,7 +14,7 @@ import {
   Button,
   Dialog,
   Tooltip,
-  Checkbox,
+  Backdrop,
   Skeleton,
   Snackbar,
   TextField,
@@ -24,19 +26,19 @@ import {
   DialogTitle,
   DialogActions,
   DialogContent,
-  FormControlLabel,
   DialogContentText,
 } from "@mui/material";
-
+import { getSession } from "next-auth/react";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
-import CircularProgress from "@mui/material/LinearProgress";
+import CircularProgress from "@mui/material/CircularProgress";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import LocalPoliceRoundedIcon from "@mui/icons-material/LocalPoliceRounded";
 import ManageSearchRoundedIcon from "@mui/icons-material/ManageSearchRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 ////////////////////////////////////////////////////////////////////////////////
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   const uri = process.env.MONGODB_URI;
   let client;
   try {
@@ -47,17 +49,24 @@ export async function getServerSideProps() {
     console.log("Connecting to MongoDB...");
     await client.connect();
     console.log("Connected to MongoDB");
+
     const collection = client.db("test").collection("users");
 
     const users = await collection.find().toArray();
 
-    console.log(`Fetched ${users.length} users`);
+    const session = await getSession(context);
+    const email = session?.user?.email;
+    const name = session?.user?.name;
+
     const serializedUsers = users.map((user) => ({
       ...user,
       _id: user._id.toString(),
       isAdmin: Boolean(user.admin),
+      isOwn: user.email === email || user.name === name,
     }));
+
     console.log(serializedUsers);
+
     return { props: { users: serializedUsers } };
   } catch (err) {
     console.log("Error connecting to MongoDB:", err);
@@ -71,11 +80,13 @@ export async function getServerSideProps() {
     }
   }
 }
-function handleOwnInfo() {
-  console.log();
-}
 
 export default function Users({ users, isadmin }) {
+  function handleOwnInfo() {
+    console.log("session2 infos", session2.data);
+  }
+  const session2 = useSession();
+  const router = useRouter();
   async function handleCheckAdmin(userId) {
     try {
       const res = await fetch(`/api/checkadmin?id=${userId}`);
@@ -88,48 +99,28 @@ export default function Users({ users, isadmin }) {
       return false;
     }
   }
-  const handleSave = async () => {
-    const updatedUser = {
-      ...selectedUser,
-      name,
-      email,
-      image,
-    };
+  async function handleSave(id, name, email, image) {
+    console.log(id);
+    const response = await fetch("/api/edituser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, name, email, image }),
+    });
 
-    // Declare cache to store visited objects
-    const cache = [];
+    const data = await response.json();
 
-    // Remove circular references
-    const replacer = (key, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (cache.includes(value)) {
-          return;
-        }
-        cache.push(value);
-      }
-      return value;
-    };
-
-    const body = JSON.stringify(updatedUser, replacer);
-
-    try {
-      const res = await fetch("/api/edituser", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!res.ok) {
-        throw new Error(res.statusText);
-      }
-
-      handleClose();
-    } catch (err) {
-      console.error(err);
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong");
+    } else {
+      setSelectedUser(null);
+      setReloading(true);
+      router.reload();
     }
-  };
+
+    return data;
+  }
   async function handleDeleteUser(userId) {
     setIsDeleting(true);
 
@@ -142,6 +133,8 @@ export default function Users({ users, isadmin }) {
         setSnackbarMessage("User deleted successfully.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
+        setReloading(true);
+        router.reload();
       } else {
         if (err.response && err.response.status === 403) {
           setSnackbarMessage("You do not have permission to delete this user.");
@@ -193,6 +186,12 @@ export default function Users({ users, isadmin }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [image, setImage] = useState("");
+  const [reloading, setReloading] = useState(true);
+
+  useEffect(() => {
+    setReloading(false);
+    // fetch data or call server-side props here
+  }, []);
   const handleEdit = (user) => {
     setSelectedUser(user);
     setName(user.name);
@@ -209,152 +208,165 @@ export default function Users({ users, isadmin }) {
   return (
     <div>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
-        <Grid
-          container
-          spacing={{ xs: 2, md: 3 }}
-          columns={{ xs: 4, sm: 8, md: 12 }}
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-        >
-          {users.map((user) => (
-            <Card
-              key={user._id}
-              sx={{
-                maxHeight: 345,
-                maxWidth: 345,
-                m: 2,
-                position: "relative",
-              }}
-            >
-              {isDeleting && ( // show CircularProgress when isDeleting is true
-                <CircularProgress size={40} />
-              )}
-              <Paper elevation={3}>
-                {isDeleting ? (
-                  <Skeleton variant="rectangle" width={210} height={140} />
-                ) : (
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    width="210"
-                    image={user.image}
-                    alt={user.name}
-                  />
-                )}
+        {reloading ? (
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 108 }}
+            open={true}
+          >
+            <CircularProgress disableshrink color="primary" />
+          </Backdrop>
+        ) : (
+          <Grid
+            container
+            spacing={{ xs: 2, md: 3 }}
+            columns={{ xs: 4, sm: 8, md: 12 }}
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+          >
+            {users.map((user) => (
+              <Card
+                key={user._id}
+                sx={{
+                  maxHeight: 345,
+                  maxWidth: 345,
+                  m: 2,
+                  position: "relative",
+                }}
+              >
+                <Paper elevation={3}>
+                  {isDeleting ? (
+                    <Skeleton variant="rectangle" width={210} height={140} />
+                  ) : (
+                    <CardMedia
+                      component="img"
+                      height="140"
+                      width="210"
+                      image={user.image}
+                      alt={user.name}
+                    />
+                  )}
 
-                <CardContent>
-                  <Grid
-                    container
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography gutterBottom variant="h5" component="div">
-                      {user.name}{" "}
-                      {user.isAdmin && (
-                        <Tooltip title="Administrator">
-                          <LocalPoliceRoundedIcon />
+                  <CardContent>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography gutterBottom variant="h5" component="div">
+                        {user.name}{" "}
+                        {user.isOwn && (
+                          <Tooltip title="Its your account !">
+                            <PersonRoundedIcon />
+                          </Tooltip>
+                        )}
+                        {user.isAdmin && (
+                          <Tooltip title="Administrator">
+                            <LocalPoliceRoundedIcon />
+                          </Tooltip>
+                        )}
+                      </Typography>
+                    </Grid>
+                    <Typography variant="body2" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                    <Stack>
+                      <Typography variant="caption" color="text.secondary">
+                        {user._id}
+                      </Typography>
+                    </Stack>
+                  </CardContent>
+
+                  <CardActions>
+                    <Grid
+                      container
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      {user.isAdmin ? (
+                        <Tooltip
+                          followCursor
+                          title="Cannot Modify this user since its an administrator"
+                        >
+                          <span>
+                            <IconButton
+                              color="primary"
+                              variant="contained"
+                              size="small"
+                              disabled
+                            >
+                              <EditRoundedIcon />
+                            </IconButton>
+                          </span>
                         </Tooltip>
-                      )}
-                    </Typography>
-                  </Grid>
-                  <Typography variant="body2" color="text.secondary">
-                    {user.email}
-                  </Typography>
-                  <Stack>
-                    <Typography variant="caption" color="text.secondary">
-                      {user._id}
-                    </Typography>
-                  </Stack>
-                </CardContent>
-                <CardActions>
-                  <Grid
-                    container
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    {user.isAdmin ? (
-                      <Tooltip
-                        followCursor
-                        title="Cannot Modify this user since its an administrator"
-                      >
-                        <span>
+                      ) : (
+                        <Tooltip arrow title="Edit User">
                           <IconButton
                             color="primary"
                             variant="contained"
                             size="small"
-                            disabled
+                            onClick={() => handleEdit(user)}
                           >
                             <EditRoundedIcon />
                           </IconButton>
-                        </span>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip arrow title="Edit User">
-                        <IconButton
-                          color="primary"
-                          variant="contained"
-                          size="small"
-                          onClick={() => handleEdit(user)}
+                        </Tooltip>
+                      )}
+                      {user.isAdmin ? (
+                        <Tooltip
+                          followCursor
+                          title="Cannot Delete this user since its an administrator"
                         >
-                          <EditRoundedIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    {user.isAdmin ? (
-                      <Tooltip
-                        followCursor
-                        title="Cannot Delete this user since its an administrator"
-                      >
-                        <span>
+                          <span>
+                            <IconButton
+                              disabled
+                              color="primary"
+                              size="small"
+                              onClick={() => handleDeleteUser(user._id)}
+                            >
+                              <DeleteForeverRoundedIcon />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip arrow title="Delete User">
                           <IconButton
-                            disabled
                             color="primary"
+                            variant="outlined"
                             size="small"
                             onClick={() => handleDeleteUser(user._id)}
                           >
                             <DeleteForeverRoundedIcon />
                           </IconButton>
-                        </span>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip arrow title="Delete User">
-                        <IconButton
-                          color="primary"
-                          variant="outlined"
-                          size="small"
-                          onClick={() => handleDeleteUser(user._id)}
-                        >
-                          <DeleteForeverRoundedIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </Grid>
-                </CardActions>
-              </Paper>
-              {/* Add circular progress and blur when isDeleting is true */}
-              {isDeleting && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    zIndex: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                  }}
-                >
-                  <CircularProgress color="primary" />
-                </Box>
-              )}
-            </Card>
-          ))}
-        </Grid>
+                        </Tooltip>
+                      )}
+                    </Grid>
+                  </CardActions>
+                </Paper>
+                {/* Add circular progress and blur when isDeleting is true */}
+                {isDeleting && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      zIndex: 1,
+                      background: "#66000000",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <CircularProgress color="primary" />
+                  </Box>
+                )}
+              </Card>
+            ))}
+          </Grid>
+        )}
       </div>
       {selectedUser && (
         <Dialog open={true} onClose={handleuClose}>
@@ -392,7 +404,11 @@ export default function Users({ users, isadmin }) {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleuClose}>Cancel</Button>
-            <Button onClick={handleSave}>Apply</Button>
+            <Button
+              onClick={() => handleSave(selectedUser._id, name, email, image)}
+            >
+              Apply
+            </Button>
           </DialogActions>
         </Dialog>
       )}

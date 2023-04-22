@@ -4,13 +4,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
+import EmojiEmotionsRoundedIcon from '@mui/icons-material/EmojiEmotionsRounded';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 export const mainListItems = (
   <React.Fragment>
   <Link href="/">
@@ -30,20 +30,20 @@ export const mainListItems = (
       <ListItemText primary="Youtube Downloader" />
     </ListItemButton>
     </Link>
-  <Link href="/">
+  <Link href="/Users">
     <ListItemButton>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <PeopleAltRoundedIcon />
       </ListItemIcon>
-      <ListItemText primary="Orders" />
+      <ListItemText primary="Users" />
     </ListItemButton>
     </Link>
-  <Link href="/">
+  <Link href="/JRN">
     <ListItemButton>
       <ListItemIcon>
-        <PeopleIcon />
+        <EmojiEmotionsRoundedIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="JRN" />
     </ListItemButton>
     </Link>
   <Link href="/">

@@ -1,10 +1,10 @@
 import { MongoClient, ObjectId } from "mongodb";
+import { getSession } from "next-auth/react";
+
+const uri = process.env.MONGODB_URI;
+let client;
 
 export default async function handler(req, res) {
-  const { id, name, email, isAdmin } = req.body;
-
-  const uri = process.env.MONGODB_URI;
-  let client;
   try {
     client = new MongoClient(uri, {
       useNewUrlParser: true,
@@ -13,27 +13,31 @@ export default async function handler(req, res) {
     console.log("Connecting to MongoDB...");
     await client.connect();
     console.log("Connected to MongoDB");
-    const collection = client.db("test").collection("users");
-    console.log("old infos :", req.body);
-    await collection.updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          name,
-          email,
-          admin: isAdmin,
-        },
-      }
-    );
-    console.log("new infos:", collection);
-    console.log("User updated successfully");
+    const database = client.db("test");
+    const users = database.collection("users");
 
-    res.status(200).json({ message: "User updated successfully" });
+    const { id, name, email, image } = req.body;
+    console.log(id);
+    const filter = { _id: ObjectId(id) };
+    const options = { upsert: false };
+    const updateDoc = {
+      $set: { name, email, image },
+    };
+
+    const result = await users.updateOne(filter, updateDoc, options);
+    console.log(
+      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`
+    );
+
+    res
+      .status(200)
+      .json({ success: true, message: "User updated successfully" });
   } catch (err) {
     console.log("Error connecting to MongoDB:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error connecting to MongoDB" });
   } finally {
-    // Ensures that the client will close when you finish/error
     if (client) {
       console.log("Closing MongoDB connection...");
       await client.close();
