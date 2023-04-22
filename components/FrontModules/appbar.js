@@ -11,10 +11,25 @@ import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import { mainListItems, secondaryListItems } from "./listItems";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import * as React from "react";
 import { Backpack, ChevronRightRounded } from "@mui/icons-material";
-import { Backdrop, Avatar, Button, Stack } from "@mui/material";
+import {
+  Backdrop,
+  Menu,
+  Paper,
+  MenuList,
+  ListItemIcon,
+  ContentCut,
+  MenuItem,
+  ListItemText,
+  Avatar,
+  Button,
+  Stack,
+} from "@mui/material";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import { useSession, signIn, signOut } from "next-auth/react";
 export default function MainBar() {
   const drawerWidth = 240;
@@ -53,6 +68,15 @@ export default function MainBar() {
 
   function LoginButton() {
     const { data: session } = useSession();
+    const [anchorEl, setAnchorEl] = React.useState(null);
+
+    const handleMenu = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
     if (session) {
       return (
         <>
@@ -67,11 +91,42 @@ export default function MainBar() {
                 <NotificationsIcon fontSize="24" />
               </Badge>
             </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              
+            >
+                <MenuList sx={{ width: 220, maxWidth: "100%" }}>
+                  <MenuItem>
+                    <ListItemIcon>
+                      <AccountCircleRoundedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Profile</ListItemText>
 
-            <IconButton>
-              <Avatar src={session.user.image}></Avatar>
+                  </MenuItem>
+
+                  <MenuItem>
+                    <ListItemIcon>
+                      <SettingsIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Settings</ListItemText>
+
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={() => signOut()}>
+                    <ListItemIcon>
+                      <LogoutRoundedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Logout</ListItemText>
+                  </MenuItem>
+                </MenuList>
+            </Menu>
+            <IconButton onClick={handleMenu}>
+              <Avatar size="large" src={session.user.image}></Avatar>
             </IconButton>
-            <Button onClick={() => signOut()}>Sign out</Button>
           </Stack>
         </>
       );

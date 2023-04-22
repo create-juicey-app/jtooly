@@ -79,13 +79,10 @@ function MyApp({ Component, pageProps }) {
       const key = event.key;
       const expectedKey = konamiKeys[codeIndex];
       const wrongExpectedKey = wrongKonamiKeys[codeIndex];
-      console.log(key);
       if (key === expectedKey || key === wrongExpectedKey) {
         codeIndex++;
-        console.log(codeIndex);
         if (codeIndex === konamiKeys.length) {
           setKonamiCode("");
-          console.log(wrongExpectedKey);
           if (key === expectedKey) {
             Router.push("/eastereggs/whopper");
           } else {
@@ -112,6 +109,8 @@ function MyApp({ Component, pageProps }) {
         <CssBaseline />
         <MainBar />
         <Paper
+          variant="outlined"
+          square
           style={{ filter: isLoading ? "blur(8px)" : "none" }}
           className="content"
         >
