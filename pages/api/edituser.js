@@ -1,11 +1,19 @@
 import { MongoClient, ObjectId } from "mongodb";
-import { getSession } from "next-auth/react";
+import checkselfadmin from "./checkselfadmin";
 
 const uri = process.env.MONGODB_URI;
 let client;
 
 export default async function handler(req, res) {
   try {
+    // Check if the user is an admin
+    const isAdmin = await checkselfadmin(req, res);
+    console.log(isAdmin);
+    if (!isAdmin) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Proceed with updating the user
     client = new MongoClient(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,

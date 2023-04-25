@@ -1,32 +1,38 @@
 import { useState, useEffect } from "react";
 import { MongoClient } from "mongodb";
-export default function Home({ text }) {
-  const [displayText, setDisplayText] = useState(text);
-  const [inputText, setInputText] = useState("");
-
-  const handleInputChange = (event) => {
-    setInputText(event.target.value);
-  };
-
-  const handleUpdateClick = async () => {
-    const response = await fetch("/api/modify-text", {
-      method: "POST",
-      body: JSON.stringify({ text: inputText }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    if (data.message === "Text updated successfully") {
-      setDisplayText(inputText);
-    } else {
-      console.log("Failed to update text");
-    }
+import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
+import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
+import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
+import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAltOutlined";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+export default function Home({ text, rrvalue }) {
+  const customIcons = {
+    1: {
+      icon: <SentimentVeryDissatisfiedIcon color="error" />,
+      label: "Very Bad",
+    },
+    2: {
+      icon: <SentimentDissatisfiedIcon color="error" />,
+      label: "Bad",
+    },
+    3: {
+      icon: <SentimentSatisfiedIcon color="warning" />,
+      label: "Neutral",
+    },
+    4: {
+      icon: <SentimentSatisfiedAltIcon color="success" />,
+      label: "Good",
+    },
+    5: {
+      icon: <SentimentVerySatisfiedIcon color="success" />,
+      label: "Very Good",
+    },
   };
 
   return (
     <div>
-      <p>{displayText}</p>
-      <input type="text" value={inputText} onChange={handleInputChange} />
-      <button onClick={handleUpdateClick}>Update text</button>
+      <p>{text}</p>
+      {rrvalue}
     </div>
   );
 }
@@ -43,5 +49,5 @@ export async function getServerSideProps() {
   const result = await collection.findOne({});
   client.close();
 
-  return { props: { text: result.text } };
+  return { props: { text: result.text, rrvalue: result.rvalue } }; // add rvalue to the props object
 }
