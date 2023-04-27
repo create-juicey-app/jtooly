@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MongoClient } from "mongodb";
 import PropTypes from "prop-types";
+import { useRouter } from 'next/router';
 import {
   TextField,
   Stack,
@@ -10,6 +11,7 @@ import {
   Rating,
   styled,
   Box,
+  ButtonGroup,
   CircularProgress,
   Grid,
 } from "@mui/material";
@@ -19,10 +21,12 @@ import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAltOutlined";
 import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import Link from "next/link"
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { green } from "@mui/material/colors";
-const PASSWORD = "a";
+const PASSWORD = "aaa";
 export default function Home({ text, rrvalue }) {
+  const router = useRouter();
   const [displayText, setDisplayText] = useState(text);
   const [inputText, setInputText] = useState(text);
   const [rvalue, setRvalue] = useState(rrvalue);
@@ -100,6 +104,9 @@ export default function Home({ text, rrvalue }) {
     } else {
       setSuccess(true);
       setLoading(false);
+      setDisplayText(inputText);
+      router.push('/JRN');
+
       console.log("Failed to update");
     }
   };
@@ -122,14 +129,22 @@ export default function Home({ text, rrvalue }) {
                 onChange={handlePasswordChange}
               />
             </Stack>
-
+            <ButtonGroup variant="contained" aria-label="outlined primary button group">
             <Button
               sx={{ bottom: 0 }}
-              variant="contained"
               onClick={handleAuthenticate}
             >
               Authenticate
             </Button>
+            <Button
+              component={Link} 
+              href="/JRN"
+              sx={{ bottom: 0 }}
+              color="secondary"
+            >
+              Go back
+            </Button>
+          </ButtonGroup>
           </Grid>
         </div>
       )}
@@ -159,15 +174,13 @@ export default function Home({ text, rrvalue }) {
           />
 
           <StyledRating
-            name="highlight-selected-only"
-            defaultValue={2}
             IconContainerComponent={IconContainer}
             value={rvalue}
             onChange={handleRatingChange}
             getLabelText={(rvalue) => customIcons[rvalue].label}
             highlightSelectedOnly
           />
-          <Typography variant="h1">{displayText}</Typography>
+          <Typography variant="h4">What im doing right now : {displayText}</Typography>
         </div>
       )}
     </div>

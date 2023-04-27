@@ -1,11 +1,61 @@
-import { useState, useEffect } from "react";
 import { MongoClient } from "mongodb";
+import { useState, useEffect } from 'react';
+import PropTypes from "prop-types";
+import Link from "next/link"
+import { Rating, Box,Tooltip, styled } from "@mui/material";
+import Fab from '@mui/material/Fab';
 import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
 import SentimentSatisfiedIcon from "@mui/icons-material/SentimentSatisfied";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAltOutlined";
 import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+import EditIcon from '@mui/icons-material/Edit';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import { Typography } from "@mui/material";
+import Brightness2RoundedIcon from '@mui/icons-material/Brightness2Rounded';
+import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export default function Home({ text, rrvalue }) {
+  const [parisTime, setParisTime] = useState('');
+  const [isNight, setIsNight] = useState(false);
+
+  useEffect(() => {
+    let animationFrameId;
+
+    const updateParisTime = () => {
+      const now = dayjs();
+      setParisTime(now.tz('Europe/Paris').format('HH:mm:ss'));
+      setIsNight(now.tz('Europe/Paris').isBefore(now.tz('Europe/Paris').set('hour', 6)) || now.tz('Europe/Paris').isAfter(now.tz('Europe/Paris').set('hour', 20)));
+      animationFrameId = requestAnimationFrame(updateParisTime);
+    };
+
+    animationFrameId = requestAnimationFrame(updateParisTime);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  const [prevParisTime, setPrevParisTime] = useState('');
+
+  useEffect(() => {
+    setPrevParisTime(parisTime);
+  }, [parisTime]);
+  function IconContainer(props) {
+    const { value, ...other } = props;
+    return <span {...other}>{customIcons[value].icon}</span>;
+  }
+  IconContainer.propTypes = {
+    value: PropTypes.number.isRequired,
+  };
+  const StyledRating = styled(Rating)(({ theme }) => ({
+    "& .MuiRating-iconEmpty .MuiSvgIcon-root": {
+      color: theme.palette.action.disabled,
+    },
+  }));
   const customIcons = {
     1: {
       icon: <SentimentVeryDissatisfiedIcon color="error" />,
@@ -31,8 +81,26 @@ export default function Home({ text, rrvalue }) {
 
   return (
     <div>
-      <p>{text}</p>
-      {rrvalue}
+      <Typography variant="h2">JRN</Typography>
+      <Typography variant="h4">What im doing right now : {text} </Typography>
+      <Typography variant="h5">Current mood : 
+      <StyledRating
+        IconContainerComponent={IconContainer}
+        value={rrvalue}
+        readOnly
+        getLabelText={(rvalue) => customIcons[rvalue].label}
+        highlightSelectedOnly
+      />
+      </Typography>
+      <Typography className={parisTime !== prevParisTime ? 'animate' : ''} variant="h5">Current time : {parisTime} {isNight ? <Tooltip title="Its currently night in my country"><Brightness2RoundedIcon /></Tooltip> : <Tooltip title="Its currently day in my country"><WbSunnyRoundedIcon /></Tooltip>}</Typography>
+      
+      <Box sx={{ m: 3, position: "fixed", bottom: 0, right: 0 }}>
+        <Link href="/UNSAFEJRN">
+      <Fab  variant="extended" color="secondary" aria-label="edit">
+        <EditIcon  sx={{ mr: 1 }} /> Edit (ADMIN ONLY)
+      </Fab>
+      </Link>
+      </Box>
     </div>
   );
 }

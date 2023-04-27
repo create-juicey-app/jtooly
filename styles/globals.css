@@ -110,6 +110,10 @@ body {
   overflow: scroll;
   filter: blur(40px);
 }
+.animate {
+  font-size: 1.2em;
+  transition: font-size 0.3s ease-in-out;
+}
 .background-video2 {
   position: fixed;
   top: 0;

@@ -110,6 +110,7 @@ function MyApp({ Component, pageProps }) {
         <MainBar />
         <Paper
           variant="outlined"
+          color="primary"
           square
           style={{ filter: isLoading ? "blur(8px)" : "none" }}
           className="content"
