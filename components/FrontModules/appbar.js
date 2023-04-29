@@ -14,6 +14,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import * as React from "react";
 import { Backpack, ChevronRightRounded } from "@mui/icons-material";
+import LogoDevIcon from '@mui/icons-material/LogoDev';
 import {
   Backdrop,
   Menu,
@@ -26,6 +27,7 @@ import {
   Avatar,
   Button,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -77,6 +79,7 @@ export default function MainBar() {
     const handleClose = () => {
       setAnchorEl(null);
     };
+    
     if (session) {
       return (
         <>
@@ -183,7 +186,7 @@ export default function MainBar() {
       },
     }),
   }));
-
+  const isDev = process.env.NODE_ENV === 'development';
   return (
     <>
       <TempAppbar position="fixed" open={open}>
@@ -226,7 +229,7 @@ export default function MainBar() {
             noWrap
             sx={{ flexGrow: 1 }}
           >
-            Jtooly
+            Jtooly  {isDev && <Tooltip title="Devloppement mode, expect errors, lag, slow loading, or glitches"><LogoDevIcon color="primary"></LogoDevIcon ></Tooltip>}
           </Typography>
 
           <LoginButton />

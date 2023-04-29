@@ -27,6 +27,7 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
+  LinearProgress,
 } from "@mui/material";
 import { getSession } from "next-auth/react";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
@@ -36,6 +37,8 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import LocalPoliceRoundedIcon from "@mui/icons-material/LocalPoliceRounded";
 import ManageSearchRoundedIcon from "@mui/icons-material/ManageSearchRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
+import Link from "next/link";
 ////////////////////////////////////////////////////////////////////////////////
 
 export async function getServerSideProps(context) {
@@ -50,19 +53,39 @@ export async function getServerSideProps(context) {
     await client.connect();
     console.log("Connected to MongoDB");
 
-    const collection = client.db("test").collection("users");
-
-    const users = await collection.find().toArray();
+    const usersCollection = client.db("test").collection("users");
+    const sessionsCollection = client.db("test").collection("sessions");
 
     const session = await getSession(context);
     const email = session?.user?.email;
     const name = session?.user?.name;
+    console.log("sessions", session);
+    const user = await usersCollection.findOne({
+      $or: [{ email: email }, { name: name }],
+    });
+    console.log("user", user);
 
-    const serializedUsers = users.map((user) => ({
+    let recentSessions = [];
+    if (user) {
+      recentSessions = await sessionsCollection
+        .find({
+          userId: user._id.toString(),
+          expires: { $gt: new Date() },
+        })
+        .toArray();
+      console.log("recentSessions", recentSessions);
+    }
+
+    const serializedUsers = (
+      await usersCollection.find().toArray()
+    ).map((user) => ({
       ...user,
       _id: user._id.toString(),
       isAdmin: Boolean(user.admin),
       isOwn: user.email === email || user.name === name,
+      isConnected: recentSessions.some(
+        (session) => session.userId.toString() === user._id.toString()
+      ),
     }));
 
     console.log(serializedUsers);
@@ -80,6 +103,8 @@ export async function getServerSideProps(context) {
     }
   }
 }
+
+
 
 export default function Users({ users, isadmin }) {
   function handleOwnInfo() {
@@ -99,6 +124,17 @@ export default function Users({ users, isadmin }) {
       return false;
     }
   }
+  useEffect(() => {
+    const fetchAdminStatus = async () => {
+      setLoading(true)
+      const res = await fetch('/api/checkselfadmin');
+      const data = await res.json();
+      setAuthenticated(data.isAdmin);
+      setLoading(false)
+    };
+
+    fetchAdminStatus();
+  }, []);
   async function handleSave(id, name, email, image) {
     console.log(id);
     const response = await fetch("/api/edituser", {
@@ -180,7 +216,8 @@ export default function Users({ users, isadmin }) {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [progress, setProgress] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState("false");
   const { data } = useSession();
   const [selectedUser, setSelectedUser] = useState(null);
   const [name, setName] = useState("");
@@ -234,49 +271,66 @@ export default function Users({ users, isadmin }) {
                   position: "relative",
                 }}
               >
+
                 <Paper elevation={3}>
                   {isDeleting ? (
                     <Skeleton variant="rectangle" width={210} height={140} />
                   ) : (
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      width="210"
-                      image={user.image}
-                      alt={user.name}
-                    />
+                    <Link href={"users/" + user._id}>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        width="210"
+                        image={user.image}
+                        alt={user.name}
+                      /></Link>
                   )}
+                  {!loading ? (
 
-                  <CardContent>
-                    <Grid
-                      container
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Typography gutterBottom variant="h5" component="div">
-                        {user.name}{" "}
-                        {user.isOwn && (
-                          <Tooltip title="Its your account !">
-                            <PersonRoundedIcon />
-                          </Tooltip>
-                        )}
-                        {user.isAdmin && (
-                          <Tooltip title="Administrator">
-                            <LocalPoliceRoundedIcon />
-                          </Tooltip>
-                        )}
-                      </Typography>
-                    </Grid>
-                    <Typography variant="body2" color="text.secondary">
-                      {user.email}
-                    </Typography>
-                    <Stack>
-                      <Typography variant="caption" color="text.secondary">
-                        {user._id}
-                      </Typography>
-                    </Stack>
-                  </CardContent>
+                    <CardContent>
+                      <Grid
+                        container
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Typography gutterBottom variant="h5" component="div">
+                          <Link href={"users/" + user._id}>
+                            {user.name}{" "}
+                          </Link>
+                          {user.isOwn && (
+                            <Tooltip title="Its your account !">
+                              <PersonRoundedIcon />
+                            </Tooltip>
+                          )}
+                          {user.isAdmin && (
+                            <Tooltip title="Administrator">
+                              <LocalPoliceRoundedIcon />
+                            </Tooltip>
+                          )}
+                          {user.isConnected && (
+                            <Tooltip title="This user is active (has recently connected)">
+                              <SpeedRoundedIcon />
+                            </Tooltip>
+                          )}
+                        </Typography>
+                      </Grid>
+                      {authenticated && (<Stack>
+                        <Typography variant="body2" color="text.secondary">
+                          {user.email}
+                        </Typography>
+
+                        <Typography variant="caption" color="text.secondary">
+                          {user._id}
+                        </Typography>
+                      </Stack>)}
+
+                    </CardContent>) : (
+                    <CardContent>
+                      <Typography>Loading user informations</Typography>
+                      <CircularProgress sx={{ marginLeft: "55px", marginRight: "55px" }} />
+                    </CardContent>
+                  )}
 
                   <CardActions>
                     <Grid

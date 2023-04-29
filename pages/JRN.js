@@ -1,8 +1,9 @@
 import { MongoClient } from "mongodb";
 import { useState, useEffect } from 'react';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
+import LinearProgress from '@mui/material/LinearProgress';
 import Link from "next/link"
-import { Rating, Box,Tooltip, styled } from "@mui/material";
+import { Rating, Box, Tooltip, styled } from "@mui/material";
 import Fab from '@mui/material/Fab';
 import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
@@ -20,7 +21,7 @@ import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export default function Home({ text, rrvalue }) {
+export default function Home({ text, rrvalue, peer }) {
   const [parisTime, setParisTime] = useState('');
   const [isNight, setIsNight] = useState(false);
 
@@ -79,27 +80,50 @@ export default function Home({ text, rrvalue }) {
     },
   };
 
+  function LinearProgressWithLabel(props) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ width: '100%', mr: 1 }}>
+          <LinearProgress variant="determinate" {...props} />
+        </Box>
+        <Box sx={{ minWidth: 35 }}>
+          <Typography variant="body2" color="text.secondary">{`${Math.round(
+            props.value,
+          )}%`}</Typography>
+        </Box>
+      </Box>
+    );
+  }
+  LinearProgressWithLabel.propTypes = {
+    /**
+     * The value of the progress indicator for the determinate and buffer variants.
+     * Value between 0 and 100.
+     */
+    value: PropTypes.number.isRequired,
+  };
   return (
     <div>
       <Typography variant="h2">JRN</Typography>
       <Typography variant="h4">What im doing right now : {text} </Typography>
-      <Typography variant="h5">Current mood : 
-      <StyledRating
-        IconContainerComponent={IconContainer}
-        value={rrvalue}
-        readOnly
-        getLabelText={(rvalue) => customIcons[rvalue].label}
-        highlightSelectedOnly
-      />
+      <Typography variant="caption">Finished :</Typography><LinearProgressWithLabel value={peer} />
+      <Typography variant="h5">Current mood :
+        <StyledRating
+          IconContainerComponent={IconContainer}
+          value={rrvalue}
+          readOnly
+          getLabelText={(rvalue) => customIcons[rvalue].label}
+          highlightSelectedOnly
+        />
       </Typography>
       <Typography className={parisTime !== prevParisTime ? 'animate' : ''} variant="h5">Current time : {parisTime} {isNight ? <Tooltip title="Its currently night in my country"><Brightness2RoundedIcon /></Tooltip> : <Tooltip title="Its currently day in my country"><WbSunnyRoundedIcon /></Tooltip>}</Typography>
-      
+
       <Box sx={{ m: 3, position: "fixed", bottom: 0, right: 0 }}>
         <Link href="/UNSAFEJRN">
-      <Fab  variant="extended" color="secondary" aria-label="edit">
-        <EditIcon  sx={{ mr: 1 }} /> Edit (ADMIN ONLY)
-      </Fab>
-      </Link>
+          <Fab variant="extended" color="secondary" aria-label="edit">
+            <EditIcon sx={{ mr: 1 }} /> Edit (ADMIN ONLY)
+          </Fab>
+        </Link>
+
       </Box>
     </div>
   );
@@ -117,5 +141,5 @@ export async function getServerSideProps() {
   const result = await collection.findOne({});
   client.close();
 
-  return { props: { text: result.text, rrvalue: result.rvalue } }; // add rvalue to the props object
+  return { props: { text: result.text, rrvalue: result.rvalue, peer: result.percentage } }; // add rvalue to the props object
 }

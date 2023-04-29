@@ -14,6 +14,7 @@ import {
   ButtonGroup,
   CircularProgress,
   Grid,
+  Paper,
 } from "@mui/material";
 import SentimentVeryDissatisfiedIcon from "@mui/icons-material/SentimentVeryDissatisfied";
 import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
@@ -23,17 +24,44 @@ import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfi
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import Link from "next/link"
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import Slider from '@mui/material/Slider';
 import { green } from "@mui/material/colors";
-const PASSWORD = "aaa";
-export default function Home({ text, rrvalue }) {
+export default function Home({ text, rrvalue, peer }) {
   const router = useRouter();
   const [displayText, setDisplayText] = useState(text);
   const [inputText, setInputText] = useState(text);
   const [rvalue, setRvalue] = useState(rrvalue);
-  const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const [Percentage, setPercentage] = useState(peer);
+  const [aloading, setaLoading] = useState(false);
+  useEffect(() => {
+    const fetchAdminStatus = async () => {
+      setaLoading(true);
+      const res = await fetch('/api/checkselfadmin');
+      const data = await res.json();
+      setAuthenticated(data.isAdmin);
+      setaLoading(false);
+    };
+
+    fetchAdminStatus();
+  }, []);
+  useEffect(() => {
+    let countdownTimer;
+    if (!authenticated) {
+      countdownTimer = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+    }
+    return () => {
+      clearInterval(countdownTimer);
+      if (!authenticated && countdown === 1) {
+        router.push('/JRN');
+      }
+    };
+  }, [authenticated, countdown, router]);
   const StyledRating = styled(Rating)(({ theme }) => ({
     "& .MuiRating-iconEmpty .MuiSvgIcon-root": {
       color: theme.palette.action.disabled,
@@ -73,27 +101,20 @@ export default function Home({ text, rrvalue }) {
   const handleInputChange = (event) => {
     setInputText(event.target.value);
   };
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
+  const handlePercentageChange = (event) => {
+    setPercentage(event.target.value);
   };
   const handleRatingChange = (event, newValue) => {
     setRvalue(newValue);
   };
-  const handleAuthenticate = () => {
-    if (password === PASSWORD) {
-      setAuthenticated(true);
-    } else {
-      alert("Incorrect password");
-    }
-  };
+
 
   const handleUpdateClick = async () => {
     setSuccess(false);
     setLoading(true);
     const response = await fetch("/api/modify-text", {
       method: "POST",
-      body: JSON.stringify({ text: inputText, rvalue: rvalue }), // add rvalue to the request body
+      body: JSON.stringify({ text: inputText, rvalue: rvalue, percentage: Percentage }), // add rvalue to the request body
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
@@ -113,78 +134,87 @@ export default function Home({ text, rrvalue }) {
 
   return (
     <div>
-      {!authenticated && (
-        <div>
-          <Grid>
-            <Stack>
-              <Typography variant="h5">
-                This zone is password protected, this is temporary for a moment
-                since nextauth is breaking and i dont know why
-              </Typography>
-              <TextField
-                fullWidth
-                label="Password"
-                type="password"
-                value={password}
-                onChange={handlePasswordChange}
-              />
-            </Stack>
-            <ButtonGroup variant="contained" aria-label="outlined primary button group">
-            <Button
-              sx={{ bottom: 0 }}
-              onClick={handleAuthenticate}
-            >
-              Authenticate
-            </Button>
-            <Button
-              component={Link} 
-              href="/JRN"
-              sx={{ bottom: 0 }}
-              color="secondary"
-            >
-              Go back
-            </Button>
-          </ButtonGroup>
-          </Grid>
-        </div>
+      {!authenticated && !aloading && (
+        <Typography>
+          You aren't an admin, returning in {countdown} seconds...
+        </Typography>
       )}
-      {authenticated && (
-        <div>
-          <Box sx={{ m: 3, position: "fixed", bottom: 0, right: 0 }}>
-            <Fab aria-label="save" color="primary" onClick={handleUpdateClick}>
-              {success ? <CheckRoundedIcon /> : <SaveRoundedIcon />}
-            </Fab>
-            {loading && (
-              <CircularProgress
-                size={68}
-                sx={{
-                  color: green[500],
-                  position: "absolute",
-                  top: -6,
-                  left: -6,
-                  zIndex: 1,
-                }}
-              />
-            )}
-          </Box>
-          <TextField
-            label="Text"
-            value={inputText}
-            onChange={handleInputChange}
-          />
+      {aloading && (
+        <CircularProgress
+          size={68}
+          sx={{
+            color: "primary",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            marginTop: "-34px",
+            marginLeft: "-34px",
+          }}
+        />
+      )}
+      {authenticated && !aloading && (
+        <Box sx={{ width: "80vw" }}>
+          <Paper elevation={2} sx={{ padding: 1.5 }}>
+            <Stack
+              direction="column"
+              justifyContent="space-evenly"
+              alignItems="stretch"
+              spacing={4}
+            >
+              <Typography variant="h2">JRN</Typography>
+              <Grid>
+                <TextField
+                  label="What im doing right now :"
+                  variant="standard"
+                  fullWidth
+                  value={inputText}
+                  onChange={handleInputChange}
+                />
+                <Box>
+                  <Typography variant="caption" gutterBottom>
+                    Percentage finished
+                  </Typography>
+                  <Slider value={Percentage} onChange={handlePercentageChange} aria-label="Default" valueLabelDisplay="auto" />
+                </Box>
+                <Grid>
+                  <Typography component="legend">Current mood : </Typography>
+                  <StyledRating
+                    IconContainerComponent={IconContainer}
+                    value={rvalue}
+                    onChange={handleRatingChange}
+                    getLabelText={(rvalue) => customIcons[rvalue].label}
+                    highlightSelectedOnly
+                  />
+                </Grid>
+              </Grid>
 
-          <StyledRating
-            IconContainerComponent={IconContainer}
-            value={rvalue}
-            onChange={handleRatingChange}
-            getLabelText={(rvalue) => customIcons[rvalue].label}
-            highlightSelectedOnly
-          />
-          <Typography variant="h4">What im doing right now : {displayText}</Typography>
-        </div>
+
+              <Box sx={{ m: 3, position: "fixed", bottom: 0, right: 0 }}>
+                <Link href="/UNSAFEJRN"></Link>
+              </Box>
+              <Box sx={{ m: 3, position: "fixed", bottom: 0, right: 0 }}>
+                <Fab sx={{ margin: 2, }} aria-label="save" color="primary" onClick={handleUpdateClick}>
+                  {success ? <CheckRoundedIcon /> : <SaveRoundedIcon />}
+                </Fab>
+                {loading && (
+                  <CircularProgress
+                    size={68}
+                    sx={{
+                      color: green[500],
+                      position: "absolute",
+                      margin: 2,
+                      zIndex: 1,
+                    }}
+                  />
+                )}
+              </Box>
+            </Stack>
+          </Paper>
+        </Box>
       )}
     </div>
   );
+
 }
 
 export async function getServerSideProps() {
@@ -199,5 +229,5 @@ export async function getServerSideProps() {
   const result = await collection.findOne({});
   client.close();
 
-  return { props: { text: result.text, rrvalue: result.rvalue } }; // add rvalue to the props object
+  return { props: { text: result.text, rrvalue: result.rvalue, peer: result.percentage } }; // add rvalue to the props object
 }
