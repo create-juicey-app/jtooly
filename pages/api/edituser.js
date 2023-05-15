@@ -13,7 +13,8 @@ export default async function handler(req, res) {
     const client = new MongoClient(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
+    })
+    
     console.log("Connecting to MongoDB...");
     await client.connect();
     console.log("Connected to MongoDB");

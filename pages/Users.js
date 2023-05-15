@@ -28,6 +28,7 @@ import {
   DialogContent,
   DialogContentText,
   LinearProgress,
+  CardActionArea,
 } from "@mui/material";
 import { getSession } from "next-auth/react";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
@@ -37,9 +38,17 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import LocalPoliceRoundedIcon from "@mui/icons-material/LocalPoliceRounded";
 import ManageSearchRoundedIcon from "@mui/icons-material/ManageSearchRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
-import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
+import SpeedRoundedIcon from "@mui/icons-material/SpeedRounded";
 import Link from "next/link";
 ////////////////////////////////////////////////////////////////////////////////
+/**
+ * Retrieves user data from a MongoDB database and returns it as props for the page.
+ * @async
+ * @function getServerSideProps
+ * @param {object} context - The Next.js context object.
+ * @returns {object} - The props object containing an array of serialized user objects.
+ * @throws {Error} - If there is an error connecting to the MongoDB database.
+ */
 
 export async function getServerSideProps(context) {
   const uri = process.env.MONGODB_URI;
@@ -75,18 +84,18 @@ export async function getServerSideProps(context) {
         .toArray();
       console.log("recentSessions", recentSessions);
     }
+    const serializedUsers = (await usersCollection.find().toArray()).map(
+      (user) => ({
+        ...user,
+        _id: user._id.toString(),
+        isAdmin: Boolean(user.admin),
+        isOwn: user.email === email || user.name === name,
 
-    const serializedUsers = (
-      await usersCollection.find().toArray()
-    ).map((user) => ({
-      ...user,
-      _id: user._id.toString(),
-      isAdmin: Boolean(user.admin),
-      isOwn: user.email === email || user.name === name,
-      isConnected: recentSessions.some(
-        (session) => session.userId.toString() === user._id.toString()
-      ),
-    }));
+        isConnected: recentSessions.some(
+          (session) => session.userId.toString() === user._id.toString()
+        ),
+      })
+    );
 
     console.log(serializedUsers);
 
@@ -104,7 +113,12 @@ export async function getServerSideProps(context) {
   }
 }
 
-
+/**
+ * Renders a list of users with their information and actions to edit or delete them.
+ * @param {Array} users - An array of user objects with their name, email, image, and isAdmin status.
+ * @param {Boolean} isadmin - A boolean indicating whether the logged in user is an admin or not.
+ * @returns {JSX.Element} - A React component that renders the list of users with their information and actions.
+ */
 
 export default function Users({ users, isadmin }) {
   function handleOwnInfo() {
@@ -125,12 +139,17 @@ export default function Users({ users, isadmin }) {
     }
   }
   useEffect(() => {
+    /**
+     * Asynchronously fetches the current user's admin status from the server and sets the authenticated state accordingly.
+     * @returns {Promise<void>} A Promise that resolves once the authenticated state has been updated.
+     */
+
     const fetchAdminStatus = async () => {
-      setLoading(true)
-      const res = await fetch('/api/checkselfadmin');
+      setLoading(true);
+      const res = await fetch("/api/checkselfadmin");
       const data = await res.json();
       setAuthenticated(data.isAdmin);
-      setLoading(false)
+      setLoading(false);
     };
 
     fetchAdminStatus();
@@ -195,15 +214,6 @@ export default function Users({ users, isadmin }) {
       setIsDeleting(false);
     }
   }
-  const [open, setOpen] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -271,22 +281,23 @@ export default function Users({ users, isadmin }) {
                   position: "relative",
                 }}
               >
-
                 <Paper elevation={3}>
                   {isDeleting ? (
                     <Skeleton variant="rectangle" width={210} height={140} />
                   ) : (
-                    <Link href={"users/" + user._id}>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        width="210"
-                        image={user.image}
-                        alt={user.name}
-                      /></Link>
+                    <CardActionArea>
+                      <Link href={"users/" + user._id}>
+                        <CardMedia
+                          component="img"
+                          height="140"
+                          width="210"
+                          image={user.image}
+                          alt={user.name}
+                        />
+                      </Link>
+                    </CardActionArea>
                   )}
                   {!loading ? (
-
                     <CardContent>
                       <Grid
                         container
@@ -295,9 +306,7 @@ export default function Users({ users, isadmin }) {
                         alignItems="center"
                       >
                         <Typography gutterBottom variant="h5" component="div">
-                          <Link href={"users/" + user._id}>
-                            {user.name}{" "}
-                          </Link>
+                          <Link href={"users/" + user._id}>{user.name} </Link>
                           {user.isOwn && (
                             <Tooltip title="Its your account !">
                               <PersonRoundedIcon />
@@ -315,20 +324,24 @@ export default function Users({ users, isadmin }) {
                           )}
                         </Typography>
                       </Grid>
-                      {authenticated && (<Stack>
-                        <Typography variant="body2" color="text.secondary">
-                          {user.email}
-                        </Typography>
+                      {authenticated && (
+                        <Stack>
+                          <Typography variant="body2" color="text.secondary">
+                            {user.email}
+                          </Typography>
 
-                        <Typography variant="caption" color="text.secondary">
-                          {user._id}
-                        </Typography>
-                      </Stack>)}
-
-                    </CardContent>) : (
+                          <Typography variant="caption" color="text.secondary">
+                            {user._id}
+                          </Typography>
+                        </Stack>
+                      )}
+                    </CardContent>
+                  ) : (
                     <CardContent>
                       <Typography>Loading user informations</Typography>
-                      <CircularProgress sx={{ marginLeft: "55px", marginRight: "55px" }} />
+                      <CircularProgress
+                        sx={{ marginLeft: "55px", marginRight: "55px" }}
+                      />
                     </CardContent>
                   )}
 

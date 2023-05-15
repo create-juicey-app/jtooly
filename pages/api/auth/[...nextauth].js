@@ -6,6 +6,9 @@ import clientPromise from "../../../lib/mongodb";
 export const authOptions = {
   // Configure one or more authentication providers
   adapter: MongoDBAdapter(clientPromise),
+  pages: {
+    signIn: "/signin",
+  },
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,

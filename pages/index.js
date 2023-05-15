@@ -9,6 +9,9 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import { useTheme } from "@mui/material/styles";
+import { darken } from "@mui/material/styles";
+import { lighten } from "@mui/material/styles";
 const useStyles = styled((theme) => ({
   root: {
     flexGrow: 1,
@@ -22,22 +25,47 @@ const useStyles = styled((theme) => ({
     },
   },
 }));
-function MainPage() {
-  const classes = useStyles();
 
+export default function MainPage() {
+  console.log(useTheme);
+  const classes = useStyles();
+  const theme = useTheme();
+  const paperBackgroundColor =
+    theme.palette.mode === "light"
+      ? lighten(theme.palette.primary.light, 0.8)
+      : darken(theme.palette.primary.dark, 0.9);
   return (
     <>
       <div className={classes.root}>
-        <Typography variant="h2" gutterBottom>
-          Welcome to Jtooly!
-        </Typography>
-        <Divider></Divider>
+        <Typography variant="h2">Welcome to Jtooly!</Typography>
+        <Typography variant="caption">Version 0.7</Typography>
+        <Divider variant="middle"></Divider>
         <Typography variant="subtitle1" gutterBottom>
           This is a test website with no real purpose. Feel free to explore and
           experiment with the features.
         </Typography>
+
+        <Typography variant="subtitle2" gutterBottom>
+          Today's tip : You can change the theme of the page by modifying the
+          theme settings in windows (Light Mode and Dark Mode syncs with the
+          website)
+        </Typography>
       </div>
-      <AppBar position="fixed" color="primary" sx={{ top: "auto", bottom: 0 }}>
+      <AppBar
+        position="fixed"
+        color="primary"
+        sx={{
+          backgroundColor: paperBackgroundColor,
+          position: "fixed",
+          left: "0%",
+          width: "98%",
+          margin: "auto",
+          borderTopLeftRadius: "24px",
+          borderTopRightRadius: "24px",
+          top: "auto",
+          bottom: 0,
+        }}
+      >
         <Toolbar>
           <div className={classes.icons}>
             <Tooltip arrow describeChild title="Primary Youtube Channel">
@@ -108,5 +136,3 @@ function MainPage() {
     </>
   );
 }
-
-export default MainPage;

@@ -4,6 +4,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
+import { Grid, SwipeableDrawer } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
@@ -11,10 +12,12 @@ import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import { mainListItems, secondaryListItems } from "./listItems";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import * as React from "react";
 import { Backpack, ChevronRightRounded } from "@mui/icons-material";
-import LogoDevIcon from '@mui/icons-material/LogoDev';
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import LogoDevIcon from "@mui/icons-material/LogoDev";
+import DynamicBreadcrumbs from "../../components/FrontModules/dynamicbread.js";
 import {
   Backdrop,
   Menu,
@@ -26,13 +29,18 @@ import {
   ListItemText,
   Avatar,
   Button,
+  useTheme,
   Stack,
   Tooltip,
+  darken,
+  lighten,
 } from "@mui/material";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
-import SettingsIcon from '@mui/icons-material/Settings';
-import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
+import SettingsIcon from "@mui/icons-material/Settings";
+import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import { useSession, signIn, signOut } from "next-auth/react";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import Link from "next/link";
 export default function MainBar() {
   const drawerWidth = 240;
   const [open, setOpen] = React.useState(false);
@@ -40,7 +48,7 @@ export default function MainBar() {
     setOpen(!open);
   };
 
-  const Drawer = styled(MuiDrawer, {
+  const Drawer = styled(SwipeableDrawer, {
     shouldForwardProp: (prop) => prop !== "open",
   })(({ theme, open }) => ({
     "& .MuiDrawer-paper": {
@@ -79,7 +87,7 @@ export default function MainBar() {
     const handleClose = () => {
       setAnchorEl(null);
     };
-    
+
     if (session) {
       return (
         <>
@@ -94,30 +102,31 @@ export default function MainBar() {
                 <NotificationsIcon fontSize="24" />
               </Badge>
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              
-            >
+            <SwipeableDrawer>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
                 <MenuList sx={{ width: 220, maxWidth: "100%" }}>
-                  <MenuItem>
-                    <ListItemIcon>
-                      <AccountCircleRoundedIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Profile</ListItemText>
-
-                  </MenuItem>
-
-                  <MenuItem>
-                    <ListItemIcon>
-                      <SettingsIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Settings</ListItemText>
-
-                  </MenuItem>
+                  <Link href={"/profile"}>
+                    <MenuItem>
+                      <ListItemIcon>
+                        <AccountCircleRoundedIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Profile</ListItemText>
+                    </MenuItem>
+                  </Link>
+                  <Link href={"/settings"}>
+                    <MenuItem>
+                      <ListItemIcon>
+                        <SettingsIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Settings</ListItemText>
+                    </MenuItem>
+                  </Link>
                   <Divider />
                   <MenuItem onClick={() => signOut()}>
                     <ListItemIcon>
@@ -126,7 +135,8 @@ export default function MainBar() {
                     <ListItemText>Logout</ListItemText>
                   </MenuItem>
                 </MenuList>
-            </Menu>
+              </Menu>
+            </SwipeableDrawer>
             <IconButton onClick={handleMenu}>
               <Avatar size="large" src={session.user.image}></Avatar>
             </IconButton>
@@ -136,8 +146,14 @@ export default function MainBar() {
     }
     return (
       <>
-        Not signed in <br />
-        <button onClick={() => signIn()}>Sign in</button>
+        <Button
+          sx={{ borderRadius: "18px" }}
+          variant="contained"
+          size="medium"
+          onClick={() => signIn()}
+        >
+          Sign in
+        </Button>
       </>
     );
   }
@@ -186,10 +202,26 @@ export default function MainBar() {
       },
     }),
   }));
-  const isDev = process.env.NODE_ENV === 'development';
+  const theme = useTheme();
+  const paperBackgroundColor =
+    theme.palette.mode === "light"
+      ? lighten(theme.palette.primary.light, 0.8)
+      : darken(theme.palette.primary.dark, 0.9);
+
+  const isDev = process.env.NODE_ENV === "development";
   return (
     <>
-      <TempAppbar position="fixed" open={open}>
+      <TempAppbar
+        sx={{
+          backgroundColor: paperBackgroundColor,
+          width: "98%",
+          left: "1%",
+          borderBottomLeftRadius: "18px",
+          borderBottomRightRadius: "18px",
+        }}
+        position="fixed"
+        open={open}
+      >
         <Toolbar
           sx={{
             pr: "24px", // keep right padding when drawer closed
@@ -229,9 +261,25 @@ export default function MainBar() {
             noWrap
             sx={{ flexGrow: 1 }}
           >
-            Jtooly  {isDev && <Tooltip title="Devloppement mode, expect errors, lag, slow loading, or glitches"><LogoDevIcon color="primary"></LogoDevIcon ></Tooltip>}
+            <Link href="/">Jtooly </Link>
+            {isDev && (
+              <Tooltip
+                placement="left-end"
+                title="Devloppement mode, expect errors, lag, slow loading, or glitches"
+              >
+                <LogoDevIcon color="primary"></LogoDevIcon>
+              </Tooltip>
+            )}
+            <DynamicBreadcrumbs />
           </Typography>
-
+          <Typography
+            sx={{ marginRight: "16px" }}
+            variant="caption"
+            color="error"
+          >
+            Im currently modifying a part of the login system, so expect being
+            disconnected
+          </Typography>
           <LoginButton />
         </Toolbar>
       </TempAppbar>
@@ -241,14 +289,22 @@ export default function MainBar() {
         onClick={toggleDrawer}
       >
         <Drawer
-          sx={{ position: "absolute", left: 0 }}
+          sx={{
+            borderTopRightRadius: "18px",
+            borderBottomRightRadius: "18px",
+            position: "absolute",
+            left: 0,
+          }}
           className="fixed"
           variant="permanent"
           open={open}
         >
           <Toolbar
             sx={{
+              borderTopRightRadius: "18px",
+              borderBottomRightRadius: "18px",
               display: "flex",
+
               alignItems: "center",
               justifyContent: "flex-end",
               px: [1],
@@ -262,6 +318,7 @@ export default function MainBar() {
             </IconButton>
           </Toolbar>
           <Divider />
+
           <List position="fixed" component="nav">
             {mainListItems}
             <Divider sx={{ my: 1 }} />
