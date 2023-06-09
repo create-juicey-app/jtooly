@@ -1,9 +1,9 @@
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
-    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
-    'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
 
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -97,8 +97,15 @@ body {
 .MuiDrawer-paper--animate {
   opacity: 0;
 }
-.test{
-  left: 1
+.test {
+  left: 1;
+}
+.canvas-container {
+  position: relative;
+}
+
+.blur {
+  filter: blur(8px);
 }
 .background-video {
   position: fixed;
@@ -124,17 +131,16 @@ body {
   overflow: hidden;
 }
 .overback {
-z-index: 1;
-margin: 5px;
-padding: 8px;
-border-radius: 12px;
-background-color: #282424;
-
+  z-index: 1;
+  margin: 5px;
+  padding: 8px;
+  border-radius: 12px;
+  background-color: #282424;
 }
-.forcerender{
+.forcerender {
   z-index: 100;
 }
-.content{
+.content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -142,10 +148,10 @@ background-color: #282424;
   padding: 6rem;
   min-height: 100vh;
 }
-.fixed{
+.fixed {
   position: fixed;
-  top:0;
-  height :100% ;
+  top: 0;
+  height: 100%;
 }
 a {
   color: inherit;

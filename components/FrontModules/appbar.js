@@ -102,7 +102,7 @@ export default function MainBar() {
                 <NotificationsIcon fontSize="24" />
               </Badge>
             </IconButton>
-            <SwipeableDrawer>
+            <Drawer>
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
@@ -111,6 +111,13 @@ export default function MainBar() {
                 onClose={handleClose}
               >
                 <MenuList sx={{ width: 220, maxWidth: "100%" }}>
+                  <MenuItem onClick={handleClose}>
+                    <Avatar size="small" src={session.user.image} />
+                    <Typography variant="h6" sx={{ paddingRight: "2px" }}>
+                      --{session.user.name}--
+                    </Typography>
+                  </MenuItem>
+
                   <Link href={"/profile"}>
                     <MenuItem>
                       <ListItemIcon>
@@ -136,7 +143,7 @@ export default function MainBar() {
                   </MenuItem>
                 </MenuList>
               </Menu>
-            </SwipeableDrawer>
+            </Drawer>
             <IconButton onClick={handleMenu}>
               <Avatar size="large" src={session.user.image}></Avatar>
             </IconButton>
@@ -272,14 +279,7 @@ export default function MainBar() {
             )}
             <DynamicBreadcrumbs />
           </Typography>
-          <Typography
-            sx={{ marginRight: "16px" }}
-            variant="caption"
-            color="error"
-          >
-            Im currently modifying a part of the login system, so expect being
-            disconnected
-          </Typography>
+
           <LoginButton />
         </Toolbar>
       </TempAppbar>
