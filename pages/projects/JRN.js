@@ -155,6 +155,20 @@ export default function Home({ text, rrvalue, peer }) {
       </Stack>
       <br />
       <Typography variant="body1">
+        I may not have a degree in computer science (yet), but I'm already on my
+        way to becoming a professional idiot.
+        <br></br>
+        <br></br>I do NextJS, Lua, and Python. 🥖And im french🥖<br></br>
+        <br></br> Im not adult yet so dont recruit me yet lol <br></br>
+        <br></br>I can write code that's just as buggy and confusing.
+        <br></br>
+        <br></br>I love & hate putting comments in my code <br></br>
+        <br></br>
+        GNU-Linux (debian) enthusiasm, and i never used crypto in my life
+        <br></br>
+        <br></br>
+      </Typography>
+      <Typography variant="caption">
         I uh like to code things like this website, so uh heres real time infos
         about myself
       </Typography>

@@ -48,7 +48,7 @@ export default function MainBar() {
     setOpen(!open);
   };
 
-  const Drawer = styled(SwipeableDrawer, {
+  const Drawer = styled(MuiDrawer, {
     shouldForwardProp: (prop) => prop !== "open",
   })(({ theme, open }) => ({
     "& .MuiDrawer-paper": {

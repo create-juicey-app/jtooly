@@ -6,10 +6,17 @@ import {
   InputAdornment,
   Box,
   MenuItem,
+  Select,
+  Paper,
+  Chip,
+  Typography,
+  Tooltip,
 } from "@mui/material";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import Autocomplete from "@mui/material/Autocomplete";
 
-import LocalizationProvider from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const GoogleSearch = () => {
@@ -20,7 +27,7 @@ const GoogleSearch = () => {
   const [afterDate, setAfterDate] = useState(null);
   const [selectedFiletype, setSelectedFiletype] = useState("");
   const [searchUrl, setSearchUrl] = useState("");
-
+  const [customFiletype, setCustomFiletype] = useState("");
   const handleSearchTermChange = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -62,12 +69,12 @@ const GoogleSearch = () => {
 
     if (beforeDate) {
       const formattedDate = beforeDate.toISOString().split("T")[0];
-      url += `+before:${formattedDate}`;
+      url += `+${formattedDate}+..`;
     }
 
     if (afterDate) {
       const formattedDate = afterDate.toISOString().split("T")[0];
-      url += `+after:${formattedDate}`;
+      url += `+${formattedDate}`;
     }
 
     if (selectedFiletype) {
@@ -87,16 +94,8 @@ const GoogleSearch = () => {
   };
 
   const searchOperators = [
-    { label: "OR", value: "OR" },
-    { label: "|", value: "|" },
-    { label: "AND", value: "AND" },
-    { label: "-", value: "-" },
-    { label: "*", value: "*" },
-    { label: "(", value: "(" },
-    { label: ")", value: ")" },
     { label: "define:", value: "define:" },
     { label: "cache:", value: "cache:" },
-    { label: "filetype:", value: "filetype:" },
     { label: "ext:", value: "ext:" },
     { label: "site:", value: "site:" },
     { label: "related:", value: "related:" },
@@ -110,10 +109,6 @@ const GoogleSearch = () => {
     { label: "stocks:", value: "stocks:" },
     { label: "map:", value: "map:" },
     { label: "movie:", value: "movie:" },
-    { label: "in", value: "in" },
-    { label: "source:", value: "source:" },
-    { label: "before:", value: "before:" },
-    { label: "after:", value: "after:" },
   ];
 
   const fileTypes = [
@@ -131,84 +126,123 @@ const GoogleSearch = () => {
   ];
 
   return (
-    <div>
+    <Paper
+      elevation={1}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "2rem",
+        borderRadius: "32px",
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       <TextField
         label="Search Term"
         value={searchTerm}
         onChange={handleSearchTermChange}
         fullWidth
-        margin="normal"
+        sx={{ marginBottom: "1rem" }}
       />
       <TextField
         label="Site Restriction (optional)"
         value={siteRestriction}
         onChange={handleSiteRestrictionChange}
         fullWidth
-        margin="normal"
+        sx={{ marginBottom: "1rem" }}
       />
       <TextField
         label="Additional Restriction (optional)"
         value={additionalRestriction}
         onChange={handleAdditionalRestrictionChange}
         fullWidth
-        margin="normal"
+        sx={{ marginBottom: "1rem" }}
       />
-      <Box
-        display="flex"
-        justifyContent="flex-start"
-        flexWrap="wrap"
-        marginBottom={1}
+      <Paper
+        elevation={2}
+        sx={{
+          padding: "1rem",
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          marginBottom: "1rem",
+        }}
       >
         {searchOperators.map((operator) => (
-          <Button
-            key={operator.label}
+          <Chip
+            label={operator.label}
             variant="outlined"
+            key={operator.label}
             color="primary"
             onClick={() => addAdditionalRestriction(operator.value)}
-            style={{ margin: "4px" }}
+            sx={{ margin: "4px" }}
+          ></Chip>
+        ))}
+      </Paper>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Paper elevation={3} sx={{ padding: "1rem" }}>
+          <Tooltip
+            title="Since Google removed the functionnality to search by date, we can
+            only search from the year (dosent always work )"
           >
-            {operator.label}
-          </Button>
-        ))}
-      </Box>
-      <DatePicker
-        label="Before Date (optional)"
-        value={beforeDate}
-        onChange={handleBeforeDateChange}
-        renderInput={(params) => (
-          <TextField {...params} fullWidth margin="normal" />
-        )}
-      />
-      <DatePicker
-        label="After Date (optional)"
-        value={afterDate}
-        onChange={handleAfterDateChange}
-        renderInput={(params) => (
-          <TextField {...params} fullWidth margin="normal" />
-        )}
-      />
-
-      <TextField
-        select
-        label="Filetype (optional)"
+            <div>
+              <DatePicker
+                disabled
+                label="Before Date (optional)"
+                value={beforeDate}
+                onChange={handleBeforeDateChange}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{ marginBottom: "0.7rem" }}
+              />
+              <DatePicker
+                disabled
+                label="After Date (optional)"
+                value={afterDate}
+                onChange={handleAfterDateChange}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{ marginBottom: "1rem" }}
+              />
+            </div>
+          </Tooltip>
+        </Paper>
+      </LocalizationProvider>
+      <Autocomplete
+        options={fileTypes}
         value={selectedFiletype}
-        onChange={handleFiletypeChange}
-        fullWidth
-        margin="normal"
+        onChange={(event, value) => setSelectedFiletype(value)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Filetype (optional)"
+            fullWidth
+            margin="normal"
+          />
+        )}
+        freeSolo
+        inputValue={customFiletype}
+        onInputChange={(event, value) => setCustomFiletype(value)}
+        sx={{ marginBottom: "1rem", minWidth: "100px" }}
+      />
+      <Button
+        variant="contained"
+        onClick={generateSearchUrl}
+        sx={{ marginBottom: "1rem" }}
       >
-        {fileTypes.map((fileType) => (
-          <MenuItem key={fileType} value={fileType}>
-            {fileType}
-          </MenuItem>
-        ))}
-      </TextField>
-      <Button variant="contained" onClick={generateSearchUrl}>
         Generate Search URL
       </Button>
-      <br />
-      <br />
       {searchUrl && (
-        <div>
+        <Paper
+          elevation={3}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: "2rem",
+            borderRadius: "8px",
+            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+            padding: "1rem",
+          }}
+        >
           <TextField
             label="Generated URL"
             value={searchUrl}
@@ -224,13 +258,14 @@ const GoogleSearch = () => {
                 </InputAdornment>
               ),
             }}
+            sx={{ marginBottom: "1rem" }}
           />
           <a href={searchUrl} target="_blank" rel="noopener noreferrer">
             Open Google Search
           </a>
-        </div>
+        </Paper>
       )}
-    </div>
+    </Paper>
   );
 };
 

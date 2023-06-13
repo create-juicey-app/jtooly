@@ -25,7 +25,7 @@ import "../styles/globals.css";
 import "./i18n";
 import { darken, lighten, colors } from "@mui/material";
 import * as muiColors from "@mui/material/colors";
-
+import requestIp from "request-ip";
 import { SessionProvider } from "next-auth/react";
 import PropTypes from "prop-types";
 import darkScrollbar from "@mui/material/darkScrollbar";
@@ -213,7 +213,7 @@ ScrollTop.propTypes = {
   window: PropTypes.func,
 };
 
-function MyApp({ Component, pageProps, mode = PaletteMode }) {
+function MyApp({ Component, pageProps, mode = PaletteMode, ipAddress }) {
   const [isOnline, setIsOnline] = useState(true);
 
   const [showCookieDisclaimer, setShowCookieDisclaimer] = useState(true);
@@ -288,7 +288,7 @@ function MyApp({ Component, pageProps, mode = PaletteMode }) {
             <ErrorBoundary>
               <Snackbar
                 open={showCookieDisclaimer}
-                anchorOrigin={{ vertical: "right", horizontal: "middle" }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 autoHideDuration={60000000}
               >
                 <Alert
@@ -354,7 +354,19 @@ function MyApp({ Component, pageProps, mode = PaletteMode }) {
     </ErrorBoundary>
   );
 }
-
+export async function getServerSideProps({ req }) {
+  const ipAddress = requestIp.getClientIp(req);
+  console.log("----------------------------------");
+  console.log("-------------VISITOR--------------");
+  console.log("----------------------------------");
+  console.log(`Visitor IP Address: ${ipAddress}`);
+  console.log("----------------------------------");
+  return {
+    props: {
+      ipAddress,
+    },
+  };
+}
 MyApp.propTypes = {
   Component: PropTypes.elementType.isRequired,
   pageProps: PropTypes.object.isRequired,
