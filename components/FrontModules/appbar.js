@@ -91,29 +91,28 @@ export default function MainBar() {
             alignItems="center"
             spacing={1}
           >
+            <Typography variant="h6">Welcome, {session.user.name}</Typography>
+
             <IconButton size="medium" color="inherit">
               <Badge badgeContent={0} color="secondary">
                 <NotificationsIcon fontSize="24" />
               </Badge>
             </IconButton>
             <Drawer>
-              <Menu id="menu-appbar" open={opened} onClose={handleClose}>
+              <Menu
+                id="menu-appbar"
+                open={opened}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
                 <MenuList sx={{ width: 220, maxWidth: "100%" }}>
-                  <MenuItem onClick={handleClose}>
-                    <Avatar size="small" src={session.user.image} />
-                    <Typography variant="h6" sx={{ paddingRight: "2px" }}>
-                      --{session.user.name}--
-                    </Typography>
-                  </MenuItem>
-
-                  <Link href={"/profile"}>
-                    <MenuItem>
-                      <ListItemIcon>
-                        <AccountCircleRoundedIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText>Profile</ListItemText>
-                    </MenuItem>
-                  </Link>
                   <Link href={"/settings"}>
                     <MenuItem>
                       <ListItemIcon>
@@ -132,7 +131,23 @@ export default function MainBar() {
                 </MenuList>
               </Menu>
             </Drawer>
-            <IconButton onClick={handleMenu}>
+            <MenuItem onClick={() => signOut()}>
+              <ListItemIcon>
+                <LogoutRoundedIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
+            <Link href={"/settings"}>
+              <MenuItem>
+                <ListItemIcon>
+                  <SettingsIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Settings</ListItemText>
+              </MenuItem>
+            </Link>
+            <Divider />
+
+            <IconButton size="medium" color="inherit" onClick={handleMenu}>
               <Avatar size="large" src={session.user.image}></Avatar>
             </IconButton>
           </Stack>
