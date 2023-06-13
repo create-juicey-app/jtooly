@@ -57,6 +57,7 @@
     "ytdl-core": "^4.11.4"
   },
   "devDependencies": {
+    "grunt": "^1.6.1",
     "prettier": "2.8.8"
   }
 }
