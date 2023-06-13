@@ -11,7 +11,6 @@ import {
   DialogActions,
   Button,
   Stack,
-  Paper,
   Typography,
   Icon,
   Divider,
@@ -29,9 +28,7 @@ import {
 import { colors as muiColors } from "@mui/material";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useState } from "react";
-
 import { MongoClient } from "mongodb";
-import ColorLensRoundedIcon from "@mui/icons-material/ColorLensRounded";
 import { ColorLensRounded } from "@mui/icons-material";
 export default function Profile({ user }) {
   const saveColor = async (color) => {

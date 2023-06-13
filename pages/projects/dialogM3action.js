@@ -9,7 +9,6 @@ import {
   DialogActions,
   Button,
   Stack,
-  Paper,
   Typography,
   Icon,
   Divider,

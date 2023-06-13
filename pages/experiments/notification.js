@@ -8,7 +8,6 @@ import {
   Popover,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Button,
   ButtonGroup,
@@ -17,7 +16,6 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { getSession } from "next-auth/react";
 
 import MessageIcon from "@mui/icons-material/Message";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import CloseIcon from "@mui/icons-material/Close";
 import { MongoClient } from "mongodb";

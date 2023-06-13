@@ -4,43 +4,32 @@ import {
   Backdrop,
   Box,
   CircularProgress,
-  Divider,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
-import { cookies } from "next/headers";
-
 import CssBaseline from "@mui/material/CssBaseline";
 import { appWithTranslation } from "next-i18next";
-import {
-  createTheme,
-  styled,
-  useTheme,
-  ThemeProvider,
-} from "@mui/material/styles";
+import { createTheme, useTheme, ThemeProvider } from "@mui/material/styles";
 import Router from "next/router";
 import MainBar from "@/components/FrontModules/appbar";
+import { PaletteMode } from "@mui/material";
 import "../styles/globals.css";
 import "./i18n";
-import { darken, lighten, colors } from "@mui/material";
+import { darken, lighten } from "@mui/material";
 import * as muiColors from "@mui/material/colors";
 import requestIp from "request-ip";
 import { SessionProvider } from "next-auth/react";
 import PropTypes from "prop-types";
-import darkScrollbar from "@mui/material/darkScrollbar";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Snackbar from "@mui/material/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
 import Alert from "@mui/material/Alert";
-import { PaletteMode, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Fab } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useScrollTrigger } from "@mui/material";
 import Grow from "@mui/material/Grow";
-import { grey } from "@mui/material/colors";
 import ErrorBoundary from "@/components/BackModules/errorhandling";
-
 import { GoogleAnalytics } from "nextjs-google-analytics";
 import { CheckRounded } from "@mui/icons-material";
 import Cookies from "js-cookie";

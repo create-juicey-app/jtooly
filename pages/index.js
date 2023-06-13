@@ -38,8 +38,8 @@ export default function MainPage() {
     <>
       <div className={classes.root}>
         <Typography variant="h2">Welcome to Jtooly!</Typography>
-        <Typography variant="caption">
-          Version 0.8 (updated 2 minutes ago)
+        <Typography variant="h1" gutterBottom>
+          Version 1.0 (CAN YOU BELIEVE IT GUYS!)
         </Typography>
         <Divider variant="middle"></Divider>
         <Typography variant="subtitle1" gutterBottom>

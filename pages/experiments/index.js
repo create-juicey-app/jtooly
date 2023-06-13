@@ -7,19 +7,10 @@ import {
   CardContent,
   CardMedia,
   Typography,
-  Stack,
   Icon,
 } from "@mui/material";
-import TaskIcon from "@mui/icons-material/Task";
-import {
-  Home,
-  Explore,
-  Search,
-  DownloadRounded,
-  ScienceRounded,
-  DeviceUnknownRounded,
-} from "@mui/icons-material";
-import BentoIcon from "@mui/icons-material/Bento";
+
+import { ScienceRounded, DeviceUnknownRounded } from "@mui/icons-material";
 const HomePage = () => {
   const router = useRouter();
 

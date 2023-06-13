@@ -26,15 +26,13 @@ import {
   DialogTitle,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  LinearProgress,
   CardActionArea,
+  DialogContentText,
 } from "@mui/material";
 import { getSession } from "next-auth/react";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
 import CircularProgress from "@mui/material/CircularProgress";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import LocalPoliceRoundedIcon from "@mui/icons-material/LocalPoliceRounded";
 import ManageSearchRoundedIcon from "@mui/icons-material/ManageSearchRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -225,10 +223,8 @@ export default function Users({ users, isadmin }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState("false");
-  const { data } = useSession();
   const [selectedUser, setSelectedUser] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

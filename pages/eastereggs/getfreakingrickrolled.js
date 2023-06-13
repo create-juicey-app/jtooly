@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Typography, Stack } from '@mui/material';
+import * as React from "react";
 import { useEffect } from "react";
 
 export default function VideoPlayer() {
@@ -22,4 +21,3 @@ export default function VideoPlayer() {
     </>
   );
 }
-

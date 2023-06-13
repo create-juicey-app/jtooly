@@ -2,9 +2,8 @@ import MuiAppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
-import { Grid, SwipeableDrawer } from "@mui/material";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
@@ -14,17 +13,13 @@ import { mainListItems, secondaryListItems } from "./listItems";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import * as React from "react";
-import { Backpack, ChevronRightRounded } from "@mui/icons-material";
-import Breadcrumbs from "@mui/material/Breadcrumbs";
 import LogoDevIcon from "@mui/icons-material/LogoDev";
 import DynamicBreadcrumbs from "../../components/FrontModules/dynamicbread.js";
 import {
   Backdrop,
   Menu,
-  Paper,
   MenuList,
   ListItemIcon,
-  ContentCut,
   MenuItem,
   ListItemText,
   Avatar,
@@ -39,7 +34,6 @@ import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import { useSession, signIn, signOut } from "next-auth/react";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import Link from "next/link";
 export default function MainBar() {
   const drawerWidth = 240;
@@ -78,14 +72,14 @@ export default function MainBar() {
 
   function LoginButton() {
     const { data: session } = useSession();
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [opened, setOpened] = React.useState(false);
 
     const handleMenu = (event) => {
-      setAnchorEl(event.currentTarget);
+      setOpened(true);
     };
 
     const handleClose = () => {
-      setAnchorEl(null);
+      setOpened(false);
     };
 
     if (session) {
@@ -103,13 +97,7 @@ export default function MainBar() {
               </Badge>
             </IconButton>
             <Drawer>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
+              <Menu id="menu-appbar" open={opened} onClose={handleClose}>
                 <MenuList sx={{ width: 220, maxWidth: "100%" }}>
                   <MenuItem onClick={handleClose}>
                     <Avatar size="small" src={session.user.image} />

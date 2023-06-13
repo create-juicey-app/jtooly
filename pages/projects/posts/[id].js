@@ -1,7 +1,8 @@
-import { MongoClient, ObjectId } from "mongodb";
+import { MongoClient } from "mongodb";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+
 import { Box, Typography } from "@mui/material";
+import { ObjectId } from "bson";
 
 export default function PostComponent({ post }) {
   const router = useRouter();
@@ -54,7 +55,7 @@ export async function getStaticProps({ params }) {
 
   await client.connect();
   const collection = client.db("test").collection("posts");
-  const post = await collection.findOne({ _id: ObjectId(id) });
+  const post = await collection.findOne({ _id: new ObjectId(id) });
   client.close();
 
   return {
