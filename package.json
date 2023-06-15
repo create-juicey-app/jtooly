@@ -4,10 +4,10 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "NODE_OPTIONS=--max_old_space_size=4096 next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -p 3001",
+    "lint": "next lint -p 3001"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
