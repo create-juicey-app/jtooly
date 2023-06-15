@@ -9,16 +9,16 @@ import {
   Typography,
 } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
-import { appWithTranslation } from "next-i18next";
+
 import { createTheme, useTheme, ThemeProvider } from "@mui/material/styles";
 import Router from "next/router";
 import MainBar from "@/components/FrontModules/appbar";
 import { PaletteMode } from "@mui/material";
 import "../styles/globals.css";
-import "./i18n";
+
 import { darken, lighten } from "@mui/material";
 import * as muiColors from "@mui/material/colors";
-import requestIp from "request-ip";
+
 import { SessionProvider } from "next-auth/react";
 import PropTypes from "prop-types";
 import Snackbar from "@mui/material/Snackbar";
@@ -343,23 +343,11 @@ function MyApp({ Component, pageProps, mode = PaletteMode, ipAddress }) {
     </ErrorBoundary>
   );
 }
-export async function getServerSideProps({ req }) {
-  const ipAddress = requestIp.getClientIp(req);
-  console.log("----------------------------------");
-  console.log("-------------VISITOR--------------");
-  console.log("----------------------------------");
-  console.log(`Visitor IP Address: ${ipAddress}`);
-  console.log("----------------------------------");
-  return {
-    props: {
-      ipAddress,
-    },
-  };
-}
+
 MyApp.propTypes = {
   Component: PropTypes.elementType.isRequired,
   pageProps: PropTypes.object.isRequired,
   mode: PropTypes.oneOf(["light", "dark"]),
 };
 
-export default appWithTranslation(MyApp);
+export default MyApp;
