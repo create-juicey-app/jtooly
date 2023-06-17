@@ -10,8 +10,13 @@
 
 # next.js
 /.next/
+.next/
+/.next
+.next
 /out/
-
+/public/.next.zip
+public/.next.zip
+./public/.next.zip
 # production
 /build
 
@@ -30,4 +35,6 @@ yarn-error.log*
 .env.local
 
 # vercel
+.vercel
+
 .vercel
